@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, url_for, flash
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import login_user, login_required, logout_user, current_user
 
 from . import auth
 from .forms import LoginForm, RegistrationForm
@@ -43,3 +43,36 @@ def register():
     return render_template('auth/register.html', form=form)
 
 
+@auth.route('/confirm/<token>')
+@login_required
+def confirm_account(token):
+    if current_user.confirmed:
+        return redirect(url_for('main.index'))
+    if current_user.confirm(token):
+        flash('Вы активировали свой акаунт. Большое спасибо!')
+    else:
+        flash('Ссылка уже не действительна попробуйте заново.')
+    return redirect(url_for('main.index'))
+
+
+@auth.before_app_request
+def before_request():
+    if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
+        return redirect(url_for('auth.unconfirmed_account'))
+
+
+@auth.route('/unconfirmed')
+def unconfirmed_account():
+    if current_user.is_anonymous or current_user.confirmed:
+        return redirect('main.index')
+    return render_template('auth/unconfirmed.html')
+
+
+@auth.route('/confirm')
+@login_required
+def resend_confirmation():
+    user = User.query.filter_by(id=current_user.id).first()
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email,'Confirm your account', 'auth/email/confirm', user=user, token=token)
+    flash('Новая ссылка на активацию акаунта отпправлена на почту.')
+    return redirect(url_for('main.index'))
