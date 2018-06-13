@@ -1,10 +1,10 @@
 import os
 from datetime import datetime
-from flask.ext.script import Manager
-# from flask.ext.bootstrap import Bootstrap
-# from flask.ext.moment import Moment
-# from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.migrate import Migrate, MigrateCommand
+from flask_script import Manager
+# from flask_bootstrap import Bootstrap
+# from flask_moment import Moment
+# from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
 
 
 # def send_mail(to, subject, template, **kwargs):
