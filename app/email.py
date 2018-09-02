@@ -3,6 +3,7 @@ from flask import current_app, render_template
 
 from . import mail
 
+
 def send_email(to, subject, template, **kwargs):
     msg = Message(current_app.config['SOCIAL_MAIL_SUBJECT_PREFIX'] + subject,
                   sender=current_app.config['SOCIAL_MAIL_SENDER'], recipients=[to])

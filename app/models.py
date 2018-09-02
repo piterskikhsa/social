@@ -10,6 +10,7 @@ from . import db, login_manager
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
