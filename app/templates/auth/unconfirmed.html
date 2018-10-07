@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Подтвердите ваш акаунт{% endblock %}
+
+{% block page_content %}
+        <h1>Привет, {{ current_user.username }}!</h1>
+        <h3>Вы еще не подтвердили свой акаунт.</h3>
+        <p>Перед тем как получить доступ к сайту, необходимо подтвердить свой акаунт. Проверьте входящие сообщения, там
+        там должно быть письмо с ссылкой подтверждением.</p>
+        <p>Необходимо новое письмо? <a href="{{ url_for('auth.resend_confirmation') }}">Нажми сюда</a></p>
+
+{% endblock %}
