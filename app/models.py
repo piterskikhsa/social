@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature
 from flask import current_app
 
 from . import db, login_manager
@@ -9,6 +9,7 @@ from . import db, login_manager
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -48,7 +49,7 @@ class User(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
-        except:
+        except BadSignature:
             return False
         if data.get('confirm') != self.id:
             return False

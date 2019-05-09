@@ -73,6 +73,6 @@ def unconfirmed_account():
 def resend_confirmation():
     user = User.query.filter_by(id=current_user.id).first()
     token = current_user.generate_confirmation_token()
-    send_email(current_user.email,'Confirm your account', 'auth/email/confirm', user=user, token=token)
+    send_email(current_user.email, 'Confirm your account', 'auth/email/confirm', user=user, token=token)
     flash('Новая ссылка на активацию акаунта отпправлена на почту.')
     return redirect(url_for('main.index'))

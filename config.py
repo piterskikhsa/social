@@ -1,9 +1,10 @@
 import os
-import sys
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-class Config():
+
+class Config:
     DEBUG = False
     SECRET_KEY = 'hard to guess string'
 
