@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, url_for, flash
-from flask_login import login_user, login_required, logout_user, current_user
+from flask.ext.login import login_user, login_required, logout_user, current_user
 
 from . import auth
 from .forms import LoginForm, RegistrationForm
@@ -16,7 +16,7 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             return redirect(request.args.get('next') or url_for('main.index'))
-        flash('Неверный Логин или Пароль')
+        flash('Неверный Логин или Пароль', 'warning')
 
     return render_template('auth/login.html', form=form)
 
@@ -38,31 +38,42 @@ def register():
         db.session.commit()
         token = user.generate_confirmation_token()
         send_email(user.email, 'Подтвердите ваш email', 'auth/email/confirm', user=user, token=token)
-        flash('Письмо с подтверждением отправлено вам по электронной почте')
+        flash('Письмо с подтверждением отправлено вам по электронной почте','success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
 
 @auth.route('/confirm/<token>')
 @login_required
-def confirm_account(token):
+def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
-        flash('Вы активировали свой акаунт. Большое спасибо!')
+        flash('Вы подтвердили свой email. Большое спасибо', 'success')
     else:
-        flash('Ссылка уже не действительна попробуйте заново.')
+        flash('Ваша ссылка устарела, попробуйте ещё раз.', 'warning')
+    return redirect(url_for('main.index'))
+
+
+@auth.route('/confirm')
+@login_required
+def resend_confirmation():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email, 'Подтвердите ваш email', 'auth/email/confirm', user=current_user, token=token)
+    flash('Новое сообщение отправлено вам')
     return redirect(url_for('main.index'))
 
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
-        return redirect(url_for('auth.unconfirmed_account'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed and request.endpoint[:5] != 'auth.':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
-def unconfirmed_account():
+def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:
         return redirect('main.index')
     return render_template('auth/unconfirmed.html')
