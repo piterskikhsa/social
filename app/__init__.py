@@ -6,6 +6,8 @@ from flask_login import LoginManager
 from flask import Flask, render_template
 
 from config import config
+from app.main import main_blueprint
+from app.auth import auth as auth_blueprint
 
 
 bootstrap = Bootstrap()
@@ -28,10 +30,8 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
 
-    from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     return app

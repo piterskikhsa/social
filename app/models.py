@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from flask.ext.login import UserMixin, AnonymousUserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature
 from flask import current_app
 
-from . import db, login_manager
+from app import db, login_manager
 
 
 @login_manager.user_loader
@@ -118,6 +118,7 @@ class User(UserMixin, db.Model):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     def can(self, permissions):
         return False
 

@@ -1,16 +1,16 @@
 from datetime import datetime
 
 from flask import render_template, session, redirect, url_for, abort, flash
-from flask.ext.login import login_required, current_user
+from flask_login import login_required, current_user
 
-from . import main
+from . import main_blueprint
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
 from ..models import User, Permission, Role, Post
 from ..decorators import admin_required, permission_required
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main_blueprint.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()
     if form.validate_on_submit():
@@ -28,28 +28,29 @@ def index():
                            current_time=datetime.utcnow())
 
 
-@main.route('/admin')
+@main_blueprint.route('/admin')
 @login_required
 @admin_required
 def for_admin_only():
     return 'For administrators!'
 
 
-@main.route('/moderator')
+@main_blueprint.route('/moderator')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
 def for_moderators_only():
     return 'For comment moderators!'
 
 
-@main.route('/profile/<username>')
+@main_blueprint.route('/profile/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
     return render_template('user.html', user=user)
 
-@main.route('/edit-profile', methods=['GET', 'POST'])
+
+@main_blueprint.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm()
@@ -66,7 +67,7 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 
-@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@main_blueprint.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_profile_admin(id):
@@ -93,7 +94,7 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main_blueprint.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES):
