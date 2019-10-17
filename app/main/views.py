@@ -12,6 +12,7 @@ from ..decorators import admin_required, permission_required
 
 @main_blueprint.route('/', methods=['GET', 'POST'])
 def index():
+    print('new')
     form = NameForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
@@ -98,7 +99,8 @@ def edit_profile_admin(id):
 def index():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES):
-        post = Post(body=form.body.data, author_id=current_user._get_current_object())
+        post = Post(body=form.body.data,
+                    author_id=current_user._get_current_object())
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
